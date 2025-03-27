@@ -1,13 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { speak, stopSpeaking } from '@/utils/speechUtils';
-import { triggerHapticFeedback } from '@/utils/hapticUtils';
+import { triggerHapticFeedback, HapticPatterns } from '@/utils/hapticUtils';
 import { checkOnlineStatus, saveToLocalStorage, getFromLocalStorage } from '@/utils/offlineUtils';
 import { preloadRecognitionModel, recognizeCurrency } from '@/utils/recognitionUtils';
+import { useToast } from '@/hooks/use-toast';
 
 type AppMode = 'mobile' | 'wearable';
 type AppLanguage = 'english' | 'hindi' | 'tamil' | 'telugu' | 'bengali';
-type AppStatus = 'idle' | 'camera' | 'processing' | 'result' | 'error' | 'settings';
+type AppStatus = 'idle' | 'camera' | 'processing' | 'result' | 'error' | 'settings' | 'accessibility';
 type AppTheme = 'light' | 'dark' | 'high-contrast';
 type VoiceSpeed = 'slow' | 'normal' | 'fast';
 
@@ -50,6 +51,7 @@ interface AppContextType {
   startCamera: () => void;
   goToHome: () => void;
   goToSettings: () => void;
+  goToAccessibility: () => void;
   
   // Offline status
   isOnline: boolean;
@@ -92,6 +94,7 @@ const defaultContext: AppContextType = {
   startCamera: () => {},
   goToHome: () => {},
   goToSettings: () => {},
+  goToAccessibility: () => {},
   
   isOnline: true,
   refreshOnlineStatus: async () => true,
@@ -107,6 +110,8 @@ const AppContext = createContext<AppContextType>(defaultContext);
 export const useAppContext = () => useContext(AppContext);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { toast } = useToast();
+  
   // State
   const [mode, setMode] = useState<AppMode>(() => 
     getFromLocalStorage('mode', 'mobile') as AppMode
@@ -169,8 +174,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       
       if (!online) {
         speak(getTranslation('offline_message'));
+        toast({
+          title: getTranslation('offline_title'),
+          description: getTranslation('offline_message'),
+          variant: "destructive",
+        });
       } else if (status !== 'idle') {
         speak(getTranslation('back_online'));
+        toast({
+          title: getTranslation('online_title'),
+          description: getTranslation('back_online'),
+          variant: "default",
+        });
       }
     };
     
@@ -221,16 +236,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       
       // Provide feedback
       if (hapticEnabled) {
-        triggerHapticFeedback();
+        triggerHapticFeedback(HapticPatterns.SUCCESS);
       }
       
       if (voiceEnabled) {
         announceResult(recognitionResult);
       }
+      
+      // Show toast notification
+      toast({
+        title: getTranslation('recognition_success'),
+        description: `${recognitionResult.denomination} ${recognitionResult.currency}`,
+        variant: "default",
+      });
     } catch (error) {
       console.error('Currency recognition error:', error);
       setError(getTranslation('recognition_error'));
       setStatus('error');
+      
+      if (hapticEnabled) {
+        triggerHapticFeedback(HapticPatterns.ERROR);
+      }
+      
+      toast({
+        title: getTranslation('error_title'),
+        description: getTranslation('recognition_error'),
+        variant: "destructive",
+      });
     }
   };
   
@@ -258,12 +290,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         telugu: "నోటు గుర్తించబడింది",
         bengali: "নোটটি চিহ্নিত করা হয়েছে"
       },
+      offline_title: {
+        english: "You're Offline",
+        hindi: "आप ऑफलाइन हैं",
+        tamil: "நீங்கள் ஆஃப்லைனில் உள்ளீர்கள்",
+        telugu: "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
+        bengali: "আপনি অফলাইনে আছেন"
+      },
       offline_message: {
         english: "You are offline. Some features may be limited.",
         hindi: "आप ऑफलाइन हैं। कुछ सुविधाएँ सीमित हो सकती हैं।",
         tamil: "நீங்கள் ஆஃப்லைனில் உள்ளீர்கள். சில அம்சங்கள் வரம்புக்குட்பட்டவை.",
         telugu: "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కొన్ని ఫీచర్లు పరిమితం కావచ్చు.",
         bengali: "আপনি অফলাইন আছেন। কিছু বৈশিষ্ট্য সীমিত হতে পারে।"
+      },
+      online_title: {
+        english: "You're Back Online",
+        hindi: "आप फिर से ऑनलाइन हैं",
+        tamil: "நீங்கள் மீண்டும் ஆன்லைனில் உள்ளீர்கள்",
+        telugu: "మీరు తిరిగి ఆన్‌లైన్‌లో ఉన్నారు",
+        bengali: "আপনি আবার অনলাইনে আছেন"
       },
       back_online: {
         english: "You are back online.",
@@ -272,12 +318,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         telugu: "మీరు తిరిగి ఆన్‌లైన్‌లో ఉన్నారు.",
         bengali: "আপনি আবার অনলাইনে আছেন।"
       },
+      error_title: {
+        english: "Error",
+        hindi: "त्रुटि",
+        tamil: "பிழை",
+        telugu: "లోపం",
+        bengali: "ত্রুটি"
+      },
       error_message: {
         english: "An error occurred. Please try again.",
         hindi: "एक त्रुटि हुई। कृपया पुन: प्रयास करें।",
         tamil: "பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.",
         telugu: "లోపం సంభవించింది. దయచేసి మళ్ళీ ప్రయత్నించండి.",
         bengali: "একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।"
+      },
+      recognition_success: {
+        english: "Currency Identified",
+        hindi: "मुद्रा की पहचान हुई",
+        tamil: "நாணயம் அடையாளம் காணப்பட்டது",
+        telugu: "కరెన్సీ గుర్తించబడింది",
+        bengali: "মুদ্রা চিহ্নিত করা হয়েছে"
       },
       recognition_error: {
         english: "Could not recognize the currency. Please try again with better lighting.",
@@ -313,6 +373,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setStatus('settings');
   };
   
+  const goToAccessibility = () => {
+    setStatus('accessibility');
+  };
+  
   const refreshOnlineStatus = async (): Promise<boolean> => {
     const online = await checkOnlineStatus();
     setIsOnline(online);
@@ -327,7 +391,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     speak(message, rate);
     
     if (hapticEnabled) {
-      triggerHapticFeedback();
+      triggerHapticFeedback(HapticPatterns.SUCCESS);
     }
   };
   
@@ -367,6 +431,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     startCamera,
     goToHome,
     goToSettings,
+    goToAccessibility,
     
     isOnline,
     refreshOnlineStatus,

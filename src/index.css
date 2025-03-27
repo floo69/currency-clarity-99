@@ -67,6 +67,37 @@
     --input: 240 3.7% 15.9%;
     --ring: 217 91% 60%;
   }
+  
+  .high-contrast {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 100%;
+    
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 60 100% 50%; /* Bright yellow for high visibility */
+    --primary-rgb: 255, 225, 0;
+    --primary-foreground: 240 10% 3.9%;
+    
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 90%;
+    
+    --accent: 60 100% 50%;
+    --accent-foreground: 240 10% 3.9%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 40%;
+    --input: 0 0% 20%;
+    --ring: 60 100% 50%;
+  }
 }
 
 @layer base {
@@ -91,6 +122,26 @@
   /* Improve touch target sizes for accessibility */
   button, a, input, select, textarea {
     @apply min-h-11 min-w-11;
+  }
+  
+  /* High contrast mode enhancements */
+  .high-contrast button, 
+  .high-contrast a, 
+  .high-contrast input, 
+  .high-contrast select {
+    @apply border-2 border-white/80;
+  }
+  
+  .high-contrast .glass-card {
+    @apply border-2 border-white/90;
+  }
+  
+  .high-contrast h1, 
+  .high-contrast h2, 
+  .high-contrast h3, 
+  .high-contrast strong, 
+  .high-contrast label {
+    @apply text-white;
   }
 }
 
@@ -156,7 +207,7 @@
   .floating-action-button {
     @apply fixed bottom-6 right-6 p-4 rounded-full bg-primary text-primary-foreground
            shadow-lg hover:shadow-xl transition-all duration-300
-           focus-visible-ring animate-float;
+           focus-visible-ring animate-float z-20;
   }
   
   .currency-scan-highlight {
@@ -187,4 +238,126 @@
            disabled:opacity-70 disabled:cursor-not-allowed
            active:scale-[0.98];
   }
+  
+  /* New styles for financial assistant */
+  .financial-assistant-button {
+    @apply fixed bottom-20 right-6 p-4 rounded-full bg-primary text-primary-foreground
+           shadow-lg hover:shadow-xl transition-all duration-300
+           focus-visible-ring animate-pulse;
+  }
+  
+  /* Animation for currency symbol background */
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+  }
+  
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+  
+  /* Enhance button accessibility */
+  .button-accessible {
+    @apply py-4 px-6 text-lg rounded-lg font-medium transition-all
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+           active:scale-95 disabled:opacity-60 disabled:pointer-events-none;
+  }
+  
+  /* High contrast specific components */
+  .high-contrast .primary-button {
+    @apply border-2 border-white text-black font-bold;
+  }
+  
+  .high-contrast .secondary-button {
+    @apply border-2 border-white bg-black text-white font-bold;
+  }
+  
+  .high-contrast .floating-action-button {
+    @apply border-2 border-white;
+  }
+}
+
+/* Additional animation keyframes */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 3s ease-in-out infinite;
+}
+
+/* Delay utilities */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
 }

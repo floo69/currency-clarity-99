@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Settings, Languages, Home, HelpCircle, Menu, X } from 'lucide-react';
+import { Moon, Sun, Settings, Languages, Home, HelpCircle, Menu, X, WifiOff } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import ModeToggle from './ModeToggle';
 import LanguageSelector from './LanguageSelector';
 
 const Header: React.FC = () => {
-  const { isDarkMode, toggleDarkMode, status, goToHome, goToSettings, language } = useAppContext();
+  const { isDarkMode, toggleDarkMode, status, goToHome, goToSettings, language, isOnline } = useAppContext();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -39,6 +39,13 @@ const Header: React.FC = () => {
       tamil: "மெனுவை மூடு",
       telugu: "మెను మూసివేయండి",
       bengali: "মেনু বন্ধ করুন"
+    },
+    offlineMode: {
+      english: "Offline Mode",
+      hindi: "ऑफलाइन मोड",
+      tamil: "ஆஃப்லைன் முறை",
+      telugu: "ఆఫ్‌లైన్ మోడ్",
+      bengali: "অফলাইন মোড"
     }
   };
   
@@ -75,12 +82,19 @@ const Header: React.FC = () => {
             <span className="absolute -left-1 -top-1 w-8 h-8 bg-primary/20 rounded-full scale-75 group-hover:scale-100 transition-transform duration-300"></span>
             <span className="relative">Currency</span>
           </span>
-          <span className="text-primary">Sight</span>
+          <span className="text-primary">Sence</span>
         </button>
       </div>
       
       {/* Desktop navigation */}
       <div className="hidden md:flex items-center gap-4 md:gap-6">
+        {!isOnline && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive rounded-full text-sm animate-pulse">
+            <WifiOff className="h-4 w-4" />
+            <span>{getText('offlineMode')}</span>
+          </div>
+        )}
+        
         <button
           onClick={goToSettings}
           className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-muted transition-colors"
@@ -119,6 +133,12 @@ const Header: React.FC = () => {
       
       {/* Mobile menu button */}
       <div className="md:hidden flex items-center gap-2">
+        {!isOnline && (
+          <div className="flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-full text-xs animate-pulse">
+            <WifiOff className="h-3 w-3" />
+          </div>
+        )}
+        
         <button
           className="icon-button"
           onClick={toggleDarkMode}
@@ -151,7 +171,7 @@ const Header: React.FC = () => {
                 className="focus-visible-ring text-xl font-bold"
                 aria-label="Go to home"
               >
-                <span className="text-primary">CurrencySight</span>
+                <span className="text-primary">CurrencySence</span>
               </button>
               
               <button
