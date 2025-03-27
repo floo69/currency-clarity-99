@@ -142,13 +142,13 @@ const ResultDisplay: React.FC = () => {
       toast({
         title: getText('lowConfidence'),
         description: getText('tryAgain'),
-        variant: "warning"
+        variant: "destructive" // Changed from "warning" to "destructive"
       });
     } else if (!isIndianRupee) {
       toast({
         title: getText('invalidCurrency'),
         description: getText('tryAgain'),
-        variant: "warning"
+        variant: "destructive" // Changed from "warning" to "destructive"
       });
     }
     
