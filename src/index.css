@@ -15,6 +15,7 @@
     --popover-foreground: 240 10% 3.9%;
 
     --primary: 221 83% 53%;
+    --primary-rgb: 37, 99, 235;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 4.8% 95.9%;
@@ -47,6 +48,7 @@
     --popover-foreground: 0 0% 98%;
 
     --primary: 217 91% 60%;
+    --primary-rgb: 59, 130, 246;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 3.7% 15.9%;
@@ -94,7 +96,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-background/80 backdrop-blur-md border border-border rounded-lg shadow-lg;
+    @apply bg-background/80 backdrop-blur-md border border-border rounded-lg shadow-lg transition-all duration-300;
   }
   
   .focus-visible-ring {
@@ -103,7 +105,7 @@
   
   .accessibility-button {
     @apply px-6 py-4 text-lg sm:text-xl font-medium rounded-full shadow-md 
-           transition-all duration-300 ease-in-out
+           transition-all duration-300 ease-out
            focus-visible-ring
            disabled:opacity-70 disabled:cursor-not-allowed
            active:scale-[0.98];
@@ -148,5 +150,41 @@
     @apply p-4 rounded-full bg-black/40 border border-white/20 text-white 
            hover:bg-white/10 transition-colors duration-200
            focus-visible-ring;
+  }
+  
+  /* New animation classes */
+  .floating-action-button {
+    @apply fixed bottom-6 right-6 p-4 rounded-full bg-primary text-primary-foreground
+           shadow-lg hover:shadow-xl transition-all duration-300
+           focus-visible-ring animate-float;
+  }
+  
+  .currency-scan-highlight {
+    @apply absolute inset-0 border-2 border-primary animate-pulse rounded-lg;
+  }
+  
+  .notification-badge {
+    @apply absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive
+           text-xs flex items-center justify-center text-destructive-foreground;
+  }
+  
+  .shimmer-effect {
+    @apply relative overflow-hidden bg-muted/50 before:absolute before:inset-0 
+           before:translate-x-[-100%] before:animate-[pan_2s_infinite] 
+           before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
+  }
+  
+  .keyboard-key {
+    @apply px-2 py-1 bg-secondary text-secondary-foreground rounded border border-border
+           shadow-sm min-h-0 min-w-0 text-sm inline-flex items-center justify-center;
+  }
+  
+  /* Large action button for accessibility */
+  .large-action-button {
+    @apply w-full max-w-xs py-6 px-8 rounded-2xl text-2xl font-bold
+           shadow-lg transition-all duration-300 ease-out
+           focus-visible-ring
+           disabled:opacity-70 disabled:cursor-not-allowed
+           active:scale-[0.98];
   }
 }

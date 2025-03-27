@@ -3,10 +3,19 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { speak, stopSpeaking } from '@/utils/speechUtils';
 import { triggerHapticFeedback } from '@/utils/hapticUtils';
 import { checkOnlineStatus, saveToLocalStorage, getFromLocalStorage } from '@/utils/offlineUtils';
+import { preloadRecognitionModel, recognizeCurrency } from '@/utils/recognitionUtils';
 
 type AppMode = 'mobile' | 'wearable';
 type AppLanguage = 'english' | 'hindi' | 'tamil' | 'telugu' | 'bengali';
-type AppStatus = 'idle' | 'camera' | 'processing' | 'result' | 'error';
+type AppStatus = 'idle' | 'camera' | 'processing' | 'result' | 'error' | 'settings';
+type AppTheme = 'light' | 'dark' | 'high-contrast';
+type VoiceSpeed = 'slow' | 'normal' | 'fast';
+
+interface RecognitionResult {
+  currency: string;
+  denomination: string;
+  confidence: number;
+}
 
 interface AppContextType {
   // Mode and language
@@ -16,12 +25,22 @@ interface AppContextType {
   setLanguage: (language: AppLanguage) => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  theme: AppTheme;
+  setTheme: (theme: AppTheme) => void;
+  
+  // Voice and haptic settings
+  voiceEnabled: boolean;
+  setVoiceEnabled: (enabled: boolean) => void;
+  voiceSpeed: VoiceSpeed;
+  setVoiceSpeed: (speed: VoiceSpeed) => void;
+  hapticEnabled: boolean;
+  setHapticEnabled: (enabled: boolean) => void;
   
   // Status and result management
   status: AppStatus;
   setStatus: (status: AppStatus) => void;
-  result: string | null;
-  setResult: (result: string | null) => void;
+  result: RecognitionResult | null;
+  setResult: (result: RecognitionResult | null) => void;
   error: string | null;
   setError: (error: string | null) => void;
   
@@ -30,13 +49,18 @@ interface AppContextType {
   setImageSrc: (src: string | null) => void;
   startCamera: () => void;
   goToHome: () => void;
+  goToSettings: () => void;
   
   // Offline status
   isOnline: boolean;
   refreshOnlineStatus: () => Promise<boolean>;
   
+  // Image recognition
+  processCapturedImage: (imageData: string) => Promise<void>;
+  isSupportedDevice: boolean;
+  
   // Accessibility actions
-  announceResult: (text: string) => void;
+  announceResult: (result: RecognitionResult) => void;
 }
 
 const defaultContext: AppContextType = {
@@ -46,6 +70,15 @@ const defaultContext: AppContextType = {
   setLanguage: () => {},
   isDarkMode: false,
   toggleDarkMode: () => {},
+  theme: 'light',
+  setTheme: () => {},
+  
+  voiceEnabled: true,
+  setVoiceEnabled: () => {},
+  voiceSpeed: 'normal',
+  setVoiceSpeed: () => {},
+  hapticEnabled: true,
+  setHapticEnabled: () => {},
   
   status: 'idle',
   setStatus: () => {},
@@ -58,9 +91,13 @@ const defaultContext: AppContextType = {
   setImageSrc: () => {},
   startCamera: () => {},
   goToHome: () => {},
+  goToSettings: () => {},
   
   isOnline: true,
   refreshOnlineStatus: async () => true,
+  
+  processCapturedImage: async () => {},
+  isSupportedDevice: true,
   
   announceResult: () => {},
 };
@@ -80,21 +117,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => 
     getFromLocalStorage('darkMode', window.matchMedia('(prefers-color-scheme: dark)').matches)
   );
+  const [theme, setTheme] = useState<AppTheme>(() =>
+    getFromLocalStorage('theme', isDarkMode ? 'dark' : 'light') as AppTheme
+  );
+  
+  const [voiceEnabled, setVoiceEnabled] = useState<boolean>(() =>
+    getFromLocalStorage('voiceEnabled', true)
+  );
+  const [voiceSpeed, setVoiceSpeed] = useState<VoiceSpeed>(() =>
+    getFromLocalStorage('voiceSpeed', 'normal') as VoiceSpeed
+  );
+  const [hapticEnabled, setHapticEnabled] = useState<boolean>(() =>
+    getFromLocalStorage('hapticEnabled', true)
+  );
   
   const [status, setStatus] = useState<AppStatus>('idle');
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<RecognitionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [isSupportedDevice, setIsSupportedDevice] = useState<boolean>(true);
   
-  // Initialize dark mode
+  // Initialize theme
   useEffect(() => {
+    // Apply dark mode
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [isDarkMode]);
+    
+    // Apply high contrast theme if needed
+    if (theme === 'high-contrast') {
+      document.documentElement.classList.add('high-contrast');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+    }
+    
+    // Preload the recognition model
+    preloadRecognitionModel().catch(err => {
+      console.error('Failed to preload recognition model:', err);
+      setIsSupportedDevice(false);
+    });
+  }, [isDarkMode, theme]);
   
   // Check online status on mount and set up listener
   useEffect(() => {
@@ -124,16 +189,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveToLocalStorage('mode', mode);
     saveToLocalStorage('language', language);
     saveToLocalStorage('darkMode', isDarkMode);
-  }, [mode, language, isDarkMode]);
+    saveToLocalStorage('theme', theme);
+    saveToLocalStorage('voiceEnabled', voiceEnabled);
+    saveToLocalStorage('voiceSpeed', voiceSpeed);
+    saveToLocalStorage('hapticEnabled', hapticEnabled);
+  }, [mode, language, isDarkMode, theme, voiceEnabled, voiceSpeed, hapticEnabled]);
   
   // Announce status changes for accessibility
   useEffect(() => {
+    if (!voiceEnabled) return;
+    
     if (status === 'camera') {
       speak(getTranslation('camera_ready'));
     } else if (status === 'processing') {
       speak(getTranslation('processing'));
     }
-  }, [status, language]);
+  }, [status, language, voiceEnabled]);
+  
+  // Process captured image for currency recognition
+  const processCapturedImage = async (imageData: string) => {
+    try {
+      setStatus('processing');
+      setImageSrc(imageData);
+      
+      // Recognize currency
+      const recognitionResult = await recognizeCurrency(imageData);
+      
+      // Update state with result
+      setResult(recognitionResult);
+      setStatus('result');
+      
+      // Provide feedback
+      if (hapticEnabled) {
+        triggerHapticFeedback();
+      }
+      
+      if (voiceEnabled) {
+        announceResult(recognitionResult);
+      }
+    } catch (error) {
+      console.error('Currency recognition error:', error);
+      setError(getTranslation('recognition_error'));
+      setStatus('error');
+    }
+  };
   
   // Translations
   const getTranslation = (key: string): string => {
@@ -179,6 +278,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         tamil: "பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.",
         telugu: "లోపం సంభవించింది. దయచేసి మళ్ళీ ప్రయత్నించండి.",
         bengali: "একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।"
+      },
+      recognition_error: {
+        english: "Could not recognize the currency. Please try again with better lighting.",
+        hindi: "मुद्रा को पहचाना नहीं जा सका। कृपया बेहतर रोशनी के साथ फिर से प्रयास करें।",
+        tamil: "நாணயத்தை அடையாளம் காண முடியவில்லை. சிறந்த ஒளியுடன் மீண்டும் முயற்சிக்கவும்.",
+        telugu: "కరెన్సీని గుర్తించలేకపోయాము. దయచేసి మెరుగైన లైటింగ్‌తో మళ్లీ ప్రయత్నించండి.",
+        bengali: "মুদ্রা চিহ্নিত করা যায়নি। অনুগ্রহ করে ভালো আলোয় আবার চেষ্টা করুন।"
       }
     };
     
@@ -187,6 +293,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const toggleDarkMode = () => {
     setIsDarkMode(prev => !prev);
+    setTheme(prev => prev === 'high-contrast' ? 'high-contrast' : (isDarkMode ? 'light' : 'dark'));
   };
   
   const startCamera = () => {
@@ -202,16 +309,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setImageSrc(null);
   };
   
+  const goToSettings = () => {
+    setStatus('settings');
+  };
+  
   const refreshOnlineStatus = async (): Promise<boolean> => {
     const online = await checkOnlineStatus();
     setIsOnline(online);
     return online;
   };
   
-  const announceResult = (text: string) => {
-    const fullText = `${getTranslation('result_prefix')} ${text}`;
-    speak(fullText);
-    triggerHapticFeedback();
+  const announceResult = (recognitionResult: RecognitionResult) => {
+    const { currency, denomination } = recognitionResult;
+    const message = `${getTranslation('result_prefix')} ${denomination} ${currency}`;
+    
+    const rate = voiceSpeed === 'slow' ? 0.8 : voiceSpeed === 'fast' ? 1.2 : 1;
+    speak(message, rate);
+    
+    if (hapticEnabled) {
+      triggerHapticFeedback();
+    }
   };
   
   // Cleanup speech on unmount
@@ -228,6 +345,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLanguage,
     isDarkMode,
     toggleDarkMode,
+    theme,
+    setTheme,
+    
+    voiceEnabled,
+    setVoiceEnabled,
+    voiceSpeed,
+    setVoiceSpeed,
+    hapticEnabled,
+    setHapticEnabled,
     
     status,
     setStatus,
@@ -240,9 +366,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setImageSrc,
     startCamera,
     goToHome,
+    goToSettings,
     
     isOnline,
     refreshOnlineStatus,
+    
+    processCapturedImage,
+    isSupportedDevice,
     
     announceResult,
   };
