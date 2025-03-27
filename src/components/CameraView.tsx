@@ -3,6 +3,22 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Camera, X, CameraOff, RefreshCw, Focus, ZoomIn, ZoomOut, FlipHorizontal } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 
+// Extended interface for MediaTrackCapabilities that includes missing properties
+interface ExtendedMediaTrackCapabilities extends MediaTrackCapabilities {
+  torch?: boolean;
+  zoom?: number;
+  focusDistance?: {min: number, max: number};
+  focusMode?: string[];
+}
+
+// Extended interface for MediaTrackConstraintSet that includes missing properties
+interface ExtendedMediaTrackConstraintSet extends MediaTrackConstraintSet {
+  torch?: boolean;
+  zoom?: number;
+  focusMode?: string;
+  pointsOfInterest?: {x: number, y: number}[];
+}
+
 const CameraView: React.FC = () => {
   const { processCapturedImage, setStatus, isOnline, language, refreshOnlineStatus, goToHome, isDarkMode } = useAppContext();
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -102,18 +118,22 @@ const CameraView: React.FC = () => {
       if (!videoTrack) return;
       
       // Check if flash is supported
-      const capabilities = videoTrack.getCapabilities();
+      const capabilities = videoTrack.getCapabilities() as ExtendedMediaTrackCapabilities;
       setHasFlash(!!capabilities.torch);
       
       // Set zoom if available
       if (capabilities.zoom) {
-        const constraints = { advanced: [{ zoom: zoomLevel }] };
+        const constraints: MediaTrackConstraints = {
+          advanced: [{ zoom: zoomLevel } as ExtendedMediaTrackConstraintSet]
+        };
         await videoTrack.applyConstraints(constraints);
       }
       
       // Toggle flash if needed and available
       if (hasFlash && flashOn) {
-        const constraints = { advanced: [{ torch: true }] };
+        const constraints: MediaTrackConstraints = {
+          advanced: [{ torch: true } as ExtendedMediaTrackConstraintSet]
+        };
         await videoTrack.applyConstraints(constraints);
       }
     } catch (error) {
@@ -260,7 +280,7 @@ const CameraView: React.FC = () => {
     if (!videoTrack) return;
     
     // Check if focus is supported
-    const capabilities = videoTrack.getCapabilities();
+    const capabilities = videoTrack.getCapabilities() as ExtendedMediaTrackCapabilities;
     if (!capabilities.focusDistance && !capabilities.focusMode) return;
     
     const videoElement = videoRef.current;
@@ -273,13 +293,11 @@ const CameraView: React.FC = () => {
     try {
       // Apply focus constraint if supported
       if (capabilities.focusMode?.includes('single-shot')) {
-        const constraints = {
-          advanced: [
-            { 
-              focusMode: 'single-shot',
-              pointsOfInterest: [{ x, y }]
-            }
-          ]
+        const constraints: MediaTrackConstraints = {
+          advanced: [{
+            focusMode: 'single-shot',
+            pointsOfInterest: [{ x, y }]
+          } as ExtendedMediaTrackConstraintSet]
         };
         
         videoTrack.applyConstraints(constraints);
