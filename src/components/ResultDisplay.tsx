@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, VolumeX, Volume2, Camera, Share, Copy, Check, Info, BadgeIndianRupee, AlertTriangle } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
@@ -22,7 +21,6 @@ const ResultDisplay: React.FC = () => {
   const [showConfidenceInfo, setShowConfidenceInfo] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   
-  // Define minimum confidence threshold
   const MIN_CONFIDENCE_THRESHOLD = 0.9;
   const isConfident = result && result.confidence >= MIN_CONFIDENCE_THRESHOLD;
   const isIndianRupee = result && result.currency === 'Indian Rupee';
@@ -101,7 +99,7 @@ const ResultDisplay: React.FC = () => {
     },
     copied: {
       english: "Copied!",
-      hindi: "कॉपी किया गया!",
+      hindi: "कॉपी क��या गया!",
       tamil: "நகலெடுக்கப்பட்டது!",
       telugu: "కాపీ చేయబడింది!",
       bengali: "কপি করা হয়েছে!"
@@ -133,26 +131,23 @@ const ResultDisplay: React.FC = () => {
     return translations[key][language as keyof typeof translations[keyof typeof translations]] || translations[key].english;
   };
   
-  // Handle result display
   useEffect(() => {
     if (!result) return;
     
-    // Show toast for low confidence or invalid currency
     if (!isConfident) {
       toast({
         title: getText('lowConfidence'),
         description: getText('tryAgain'),
-        variant: "destructive" // Changed from "warning" to "destructive"
+        variant: "warning"
       });
     } else if (!isIndianRupee) {
       toast({
         title: getText('invalidCurrency'),
         description: getText('tryAgain'),
-        variant: "destructive" // Changed from "warning" to "destructive"
+        variant: "warning"
       });
     }
     
-    // Clean up
     return () => {
       stopSpeaking();
     };
@@ -178,7 +173,6 @@ const ResultDisplay: React.FC = () => {
         await navigator.share({
           title: 'Currency Identification Result',
           text: shareText,
-          // Only include image if available and it's a blob URL
           ...(imageSrc && !imageSrc.startsWith('data:') && { url: imageSrc })
         });
       } catch (error) {
@@ -219,7 +213,6 @@ const ResultDisplay: React.FC = () => {
     return 'text-red-500 dark:text-red-400';
   };
   
-  // If no result, return empty
   if (!result) return null;
   
   const symbol = getCurrencySymbol(result.currency);
@@ -262,7 +255,6 @@ const ResultDisplay: React.FC = () => {
         {isValidResult ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Denomination */}
               <div className="glass-card p-4 rounded-lg animate-fade-in delay-100">
                 <h3 className="text-lg text-muted-foreground mb-2">{getText('denomination')}</h3>
                 <div className="text-4xl md:text-5xl font-bold text-primary flex items-center gap-2">
@@ -270,7 +262,6 @@ const ResultDisplay: React.FC = () => {
                 </div>
               </div>
               
-              {/* Currency */}
               <div className="glass-card p-4 rounded-lg animate-fade-in delay-200">
                 <h3 className="text-lg text-muted-foreground mb-2">{getText('currency')}</h3>
                 <div className="text-2xl md:text-3xl font-bold flex items-center gap-2">
@@ -280,7 +271,6 @@ const ResultDisplay: React.FC = () => {
               </div>
             </div>
             
-            {/* Confidence score */}
             <div className="mb-8 relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -312,7 +302,6 @@ const ResultDisplay: React.FC = () => {
               )}
             </div>
             
-            {/* Actions */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <button
                 onClick={handleSpeakResult}
@@ -373,7 +362,6 @@ const ResultDisplay: React.FC = () => {
           </div>
         )}
         
-        {/* Navigation */}
         <div className="flex flex-wrap gap-4 justify-between">
           <button
             onClick={goToHome}
