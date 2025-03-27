@@ -14,17 +14,16 @@ export const recognizeCurrency = async (imageData: string): Promise<RecognitionR
   // Simulate processing time
   await new Promise(resolve => setTimeout(resolve, 1500));
   
-  // For demo purposes, we'll return a mock result
+  // For demo purposes, only return Indian Rupee as per requirement
   // In a real app, this would process the image through a trained model
-  const currencies = ['Indian Rupee', 'US Dollar', 'Euro', 'British Pound', 'Japanese Yen'];
-  const denominations = ['10', '20', '50', '100', '500', '1000', '2000'];
+  const denominations = ['10', '20', '50', '100', '200', '500', '2000'];
   
-  const randomCurrency = currencies[Math.floor(Math.random() * currencies.length)];
   const randomDenomination = denominations[Math.floor(Math.random() * denominations.length)];
-  const confidence = 0.7 + (Math.random() * 0.3); // Random between 0.7 and 1.0
+  // Generate a confidence level between 0.85 and 1.0 to ensure higher confidence
+  const confidence = 0.85 + (Math.random() * 0.15);
   
   return {
-    currency: randomCurrency,
+    currency: 'Indian Rupee', // Only return Indian Rupee
     denomination: randomDenomination,
     confidence: confidence
   };

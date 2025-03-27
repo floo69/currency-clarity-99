@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, VolumeX, Volume2, Camera, Share, Copy, Check, Info } from 'lucide-react';
+import { ArrowLeft, VolumeX, Volume2, Camera, Share, Copy, Check, Info, BadgeIndianRupee, AlertTriangle } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { speak, stopSpeaking } from '@/utils/speechUtils';
 import { getCurrencySymbol, formatResultForSpeech } from '@/utils/recognitionUtils';
+import { useToast } from '@/hooks/use-toast';
 
 const ResultDisplay: React.FC = () => {
   const { 
@@ -16,9 +17,16 @@ const ResultDisplay: React.FC = () => {
     hapticEnabled
   } = useAppContext();
   
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showConfidenceInfo, setShowConfidenceInfo] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  
+  // Define minimum confidence threshold
+  const MIN_CONFIDENCE_THRESHOLD = 0.9;
+  const isConfident = result && result.confidence >= MIN_CONFIDENCE_THRESHOLD;
+  const isIndianRupee = result && result.currency === 'Indian Rupee';
+  const isValidResult = isConfident && isIndianRupee;
   
   const translations = {
     identified: {
@@ -104,6 +112,20 @@ const ResultDisplay: React.FC = () => {
       tamil: "நம்பிக்கை மதிப்பெண் இந்த அடையாளத்தைப் பற்றி AI எவ்வளவு உறுதியாக உள்ளது என்பதைக் குறிக்கிறது.",
       telugu: "కాన్ఫిడెన్స్ స్కోర్ ఈ గుర్తింపు గురించి AI ఎంత ఖచ్చితంగా ఉందో సూచిస్తుంది.",
       bengali: "কনফিডেন্স স্কোর নির্দেশ করে এই শনাক্তকরণ সম্পর্কে AI কতটা নিশ্চিত।"
+    },
+    lowConfidence: {
+      english: "Low confidence detection. Please try again with better lighting.",
+      hindi: "कम विश्वास वाला पहचान। कृपया बेहतर रोशनी के साथ फिर से प्रयास करें।",
+      tamil: "குறைந்த நம்பிக்கை கண்டறிதல். சிறந்த ஒளியுடன் மீண்டும் முயற்சிக்கவும்.",
+      telugu: "తక్కువ నమ్మకంతో గుర్తించడం. దయచేసి మెరుగైన కాంతితో మళ్లీ ప్రయత్నించండి.",
+      bengali: "কম আত্মবিশ্বাসের সাথে সনাক্তকরণ। ভালো আলোর সাথে আবার চেষ্টা করুন।"
+    },
+    invalidCurrency: {
+      english: "Only Indian Rupee is supported.",
+      hindi: "केवल भारतीय रुपये का समर्थन है।",
+      tamil: "இந்திய ரூபாய் மட்டுமே ஆதரிக்கப்படுகிறது.",
+      telugu: "భారతీయ రూపాయి మాత్రమే మద్దతు ఉంది.",
+      bengali: "শুধুমাত্র ভারতীয় রুপি সমর্থিত।"
     }
   };
   
@@ -115,6 +137,21 @@ const ResultDisplay: React.FC = () => {
   useEffect(() => {
     if (!result) return;
     
+    // Show toast for low confidence or invalid currency
+    if (!isConfident) {
+      toast({
+        title: getText('lowConfidence'),
+        description: getText('tryAgain'),
+        variant: "warning"
+      });
+    } else if (!isIndianRupee) {
+      toast({
+        title: getText('invalidCurrency'),
+        description: getText('tryAgain'),
+        variant: "warning"
+      });
+    }
+    
     // Clean up
     return () => {
       stopSpeaking();
@@ -122,7 +159,7 @@ const ResultDisplay: React.FC = () => {
   }, [result]);
   
   const handleSpeakResult = () => {
-    if (result) {
+    if (result && isValidResult) {
       speak(formatResultForSpeech(result));
     }
   };
@@ -132,7 +169,7 @@ const ResultDisplay: React.FC = () => {
   };
   
   const handleShare = async () => {
-    if (!result) return;
+    if (!result || !isValidResult) return;
     
     const shareText = `I identified a ${result.denomination} ${result.currency} using CurrencySight app.`;
     
@@ -164,7 +201,7 @@ const ResultDisplay: React.FC = () => {
   };
   
   const handleCopy = () => {
-    if (!result) return;
+    if (!result || !isValidResult) return;
     
     const copyText = `${result.denomination} ${result.currency}`;
     copyToClipboard(copyText);
@@ -191,8 +228,17 @@ const ResultDisplay: React.FC = () => {
     <div className="w-full max-w-xl mx-auto animate-fade-in">
       <div className="glass-card p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6 flex items-center justify-center gap-2">
-          <span className="inline-block animate-scale-in">{getText('identified')}</span>
-          <Check className="w-6 h-6 text-green-500 animate-scale-in delay-100" />
+          {isValidResult ? (
+            <>
+              <span className="inline-block animate-scale-in">{getText('identified')}</span>
+              <Check className="w-6 h-6 text-green-500 animate-scale-in delay-100" />
+            </>
+          ) : (
+            <>
+              <span className="inline-block animate-scale-in text-yellow-500">Detection Issue</span>
+              <AlertTriangle className="w-6 h-6 text-yellow-500 animate-scale-in delay-100" />
+            </>
+          )}
         </h2>
         
         {imageSrc && (
@@ -213,101 +259,119 @@ const ResultDisplay: React.FC = () => {
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Denomination */}
-          <div className="glass-card p-4 rounded-lg animate-fade-in delay-100">
-            <h3 className="text-lg text-muted-foreground mb-2">{getText('denomination')}</h3>
-            <div className="text-4xl md:text-5xl font-bold text-primary flex items-center gap-2">
-              {symbol} {result.denomination}
+        {isValidResult ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Denomination */}
+              <div className="glass-card p-4 rounded-lg animate-fade-in delay-100">
+                <h3 className="text-lg text-muted-foreground mb-2">{getText('denomination')}</h3>
+                <div className="text-4xl md:text-5xl font-bold text-primary flex items-center gap-2">
+                  {symbol} {result.denomination}
+                </div>
+              </div>
+              
+              {/* Currency */}
+              <div className="glass-card p-4 rounded-lg animate-fade-in delay-200">
+                <h3 className="text-lg text-muted-foreground mb-2">{getText('currency')}</h3>
+                <div className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <BadgeIndianRupee className="w-6 h-6 text-primary" />
+                  {result.currency}
+                </div>
+              </div>
             </div>
-          </div>
-          
-          {/* Currency */}
-          <div className="glass-card p-4 rounded-lg animate-fade-in delay-200">
-            <h3 className="text-lg text-muted-foreground mb-2">{getText('currency')}</h3>
-            <div className="text-2xl md:text-3xl font-bold">{result.currency}</div>
-          </div>
-        </div>
-        
-        {/* Confidence score */}
-        <div className="mb-8 relative">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg text-muted-foreground">{getText('confidence')}</h3>
-              <button 
-                onClick={() => setShowConfidenceInfo(!showConfidenceInfo)}
-                className="p-1 rounded-full hover:bg-muted focus-visible-ring"
-                aria-label="Confidence information"
+            
+            {/* Confidence score */}
+            <div className="mb-8 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg text-muted-foreground">{getText('confidence')}</h3>
+                  <button 
+                    onClick={() => setShowConfidenceInfo(!showConfidenceInfo)}
+                    className="p-1 rounded-full hover:bg-muted focus-visible-ring"
+                    aria-label="Confidence information"
+                  >
+                    <Info className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+                <div className={`text-lg font-medium ${getConfidenceColor(result.confidence)}`}>
+                  {getConfidenceLevel(result.confidence)} ({Math.round(result.confidence * 100)}%)
+                </div>
+              </div>
+              
+              <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-1000 ease-out"
+                  style={{ width: `${result.confidence * 100}%` }}
+                ></div>
+              </div>
+              
+              {showConfidenceInfo && (
+                <div className="mt-2 text-sm text-muted-foreground p-3 bg-muted/30 rounded-md animate-fade-in">
+                  {getText('confidenceExplanation')}
+                </div>
+              )}
+            </div>
+            
+            {/* Actions */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                onClick={handleSpeakResult}
+                className="secondary-button flex items-center justify-center gap-2"
+                aria-label={getText('speakAgain')}
               >
-                <Info className="w-4 h-4 text-muted-foreground" />
+                <Volume2 className="h-5 w-5" />
+                {getText('speakAgain')}
+              </button>
+              
+              <button
+                onClick={handleShare}
+                className="secondary-button flex items-center justify-center gap-2"
+                aria-label={getText('share')}
+              >
+                <Share className="h-5 w-5" />
+                {getText('share')}
+              </button>
+              
+              <button
+                onClick={handleCopy}
+                className="secondary-button flex items-center justify-center gap-2"
+                aria-label={copied ? getText('copied') : getText('copy')}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-5 w-5 text-green-500" />
+                    {getText('copied')}
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-5 w-5" />
+                    {getText('copy')}
+                  </>
+                )}
+              </button>
+              
+              <button
+                onClick={handleMute}
+                className="secondary-button flex items-center justify-center gap-2"
+                aria-label={getText('mute')}
+              >
+                <VolumeX className="h-5 w-5" />
+                {getText('mute')}
               </button>
             </div>
-            <div className={`text-lg font-medium ${getConfidenceColor(result.confidence)}`}>
-              {getConfidenceLevel(result.confidence)} ({Math.round(result.confidence * 100)}%)
-            </div>
+          </>
+        ) : (
+          <div className="p-6 bg-muted/30 rounded-lg mb-8 text-center animate-fade-in">
+            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Detection Issue</h3>
+            <p className="mb-4 text-muted-foreground">
+              {!isConfident ? getText('lowConfidence') : getText('invalidCurrency')}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please ensure good lighting and position the banknote clearly within the frame.
+            </p>
           </div>
-          
-          <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-1000 ease-out"
-              style={{ width: `${result.confidence * 100}%` }}
-            ></div>
-          </div>
-          
-          {showConfidenceInfo && (
-            <div className="mt-2 text-sm text-muted-foreground p-3 bg-muted/30 rounded-md animate-fade-in">
-              {getText('confidenceExplanation')}
-            </div>
-          )}
-        </div>
-        
-        {/* Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <button
-            onClick={handleSpeakResult}
-            className="secondary-button flex items-center justify-center gap-2"
-            aria-label={getText('speakAgain')}
-          >
-            <Volume2 className="h-5 w-5" />
-            {getText('speakAgain')}
-          </button>
-          
-          <button
-            onClick={handleShare}
-            className="secondary-button flex items-center justify-center gap-2"
-            aria-label={getText('share')}
-          >
-            <Share className="h-5 w-5" />
-            {getText('share')}
-          </button>
-          
-          <button
-            onClick={handleCopy}
-            className="secondary-button flex items-center justify-center gap-2"
-            aria-label={copied ? getText('copied') : getText('copy')}
-          >
-            {copied ? (
-              <>
-                <Check className="h-5 w-5 text-green-500" />
-                {getText('copied')}
-              </>
-            ) : (
-              <>
-                <Copy className="h-5 w-5" />
-                {getText('copy')}
-              </>
-            )}
-          </button>
-          
-          <button
-            onClick={handleMute}
-            className="secondary-button flex items-center justify-center gap-2"
-            aria-label={getText('mute')}
-          >
-            <VolumeX className="h-5 w-5" />
-            {getText('mute')}
-          </button>
-        </div>
+        )}
         
         {/* Navigation */}
         <div className="flex flex-wrap gap-4 justify-between">
