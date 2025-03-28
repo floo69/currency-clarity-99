@@ -1,107 +1,76 @@
 
-let speechSynthesis: SpeechSynthesis | null = null;
-let speechUtterance: SpeechSynthesisUtterance | null = null;
+// Speech synthesis utility for accessibility and voice feedback
 
-if (typeof window !== 'undefined') {
-  speechSynthesis = window.speechSynthesis;
-}
+let currentUtterance: SpeechSynthesisUtterance | null = null;
 
-export const speak = (text: string, rate = 1, pitch = 1, volume = 1): void => {
-  if (!speechSynthesis) {
-    console.error('Speech synthesis not supported');
+/**
+ * Speaks the given text using the browser's speech synthesis API
+ * @param text The text to speak
+ * @param rate Speech rate (0.5-2.0, default: 1.0)
+ * @param pitch Speech pitch (0.5-2.0, default: 1.0)
+ * @param volume Speech volume (0.0-1.0, default: 1.0)
+ */
+export const speak = (
+  text: string, 
+  rate: number = 1.0, 
+  pitch: number = 1.0,
+  volume: number = 1.0
+): void => {
+  // Check if speech synthesis is available
+  if (!('speechSynthesis' in window)) {
+    console.warn('Speech synthesis not supported in this browser');
     return;
   }
   
-  // Stop any ongoing speech
+  // Cancel any ongoing speech
   stopSpeaking();
   
   // Create a new utterance
-  speechUtterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(text);
   
   // Set properties
-  speechUtterance.rate = rate;
-  speechUtterance.pitch = pitch;
-  speechUtterance.volume = volume;
+  utterance.rate = Math.max(0.5, Math.min(2.0, rate));
+  utterance.pitch = Math.max(0.5, Math.min(2.0, pitch));
+  utterance.volume = Math.max(0, Math.min(1.0, volume));
   
-  // Try to find the best voice for the user's language
-  try {
-    const voices = speechSynthesis.getVoices();
-    const userLanguage = navigator.language || 'en-US';
-    
-    // First try to find a voice that matches the user's language
-    let voice = voices.find(v => v.lang === userLanguage);
-    
-    // If no exact match, try to find a voice that starts with the same language code
-    if (!voice) {
-      const langCode = userLanguage.split('-')[0];
-      voice = voices.find(v => v.lang.startsWith(langCode));
-    }
-    
-    // If still no match, default to the first available voice
-    if (voice) {
-      speechUtterance.voice = voice;
-    }
-  } catch (error) {
-    console.error('Error setting voice:', error);
+  // Try to use an Indian English voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' || 
+    voice.lang === 'hi-IN' ||
+    voice.name.includes('Indian')
+  );
+  
+  if (indianVoice) {
+    utterance.voice = indianVoice;
   }
   
-  // Add end event listener
-  speechUtterance.onend = () => {
-    speechUtterance = null;
-  };
+  // Store reference to current utterance
+  currentUtterance = utterance;
   
-  // Add error event listener
-  speechUtterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
-    speechUtterance = null;
-  };
+  // Speak the text
+  window.speechSynthesis.speak(utterance);
   
-  // Speak
-  speechSynthesis.speak(speechUtterance);
+  // Clear reference when done
+  utterance.onend = () => {
+    currentUtterance = null;
+  };
 };
 
+/**
+ * Stops any ongoing speech
+ */
 export const stopSpeaking = (): void => {
-  if (!speechSynthesis) return;
-  
-  speechSynthesis.cancel();
-  speechUtterance = null;
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    currentUtterance = null;
+  }
 };
 
-export const pauseSpeaking = (): void => {
-  if (!speechSynthesis) return;
-  
-  speechSynthesis.pause();
-};
-
-export const resumeSpeaking = (): void => {
-  if (!speechSynthesis) return;
-  
-  speechSynthesis.resume();
-};
-
-export const getVoices = (): SpeechSynthesisVoice[] => {
-  if (!speechSynthesis) return [];
-  return speechSynthesis.getVoices();
-};
-
+/**
+ * Checks if speech is currently in progress
+ * @returns True if speech is in progress, false otherwise
+ */
 export const isSpeaking = (): boolean => {
-  if (!speechSynthesis) return false;
-  return speechSynthesis.speaking;
-};
-
-export const isPaused = (): boolean => {
-  if (!speechSynthesis) return false;
-  return speechSynthesis.paused;
-};
-
-// Helper to get estimated speech duration in milliseconds
-export const getEstimatedSpeechDuration = (text: string, rate = 1): number => {
-  // Average speaking rate is about 150 words per minute (or 2.5 words per second)
-  // Adjust based on the rate parameter
-  const wordsPerSecond = 2.5 * rate;
-  const wordCount = text.split(/\s+/).length;
-  const durationInSeconds = wordCount / wordsPerSecond;
-  
-  // Add a small buffer for more accurate estimation
-  return (durationInSeconds * 1000) + 500;
+  return 'speechSynthesis' in window && window.speechSynthesis.speaking;
 };

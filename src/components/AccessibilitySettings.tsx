@@ -5,7 +5,6 @@ import { useAppContext } from '@/context/AppContext';
 import { speak, stopSpeaking } from '@/utils/speechUtils';
 import { triggerHapticFeedback, HapticPatterns } from '@/utils/hapticUtils';
 import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
 
 const AccessibilitySettings: React.FC = () => {
   const { 
@@ -188,14 +187,13 @@ const AccessibilitySettings: React.FC = () => {
                 />
               </div>
               
-              <Button 
-                variant="secondary" 
-                className="w-full flex items-center justify-center gap-2"
+              <button 
+                className="w-full py-2 px-4 bg-secondary rounded-lg flex items-center justify-center gap-2 focus-visible-ring"
                 onClick={handleTestVoice}
               >
                 <Volume2 className="h-4 w-4" />
                 {getText('testVoice')}
-              </Button>
+              </button>
             </div>
           </section>
           
@@ -221,14 +219,13 @@ const AccessibilitySettings: React.FC = () => {
                 />
               </div>
               
-              <Button 
-                variant="secondary" 
-                className="w-full flex items-center justify-center gap-2"
+              <button 
+                className="w-full py-2 px-4 bg-secondary rounded-lg flex items-center justify-center gap-2 focus-visible-ring"
                 onClick={handleTestVibration}
               >
                 <Vibrate className="h-4 w-4" />
                 {getText('testVibration')}
-              </Button>
+              </button>
             </div>
           </section>
         </div>

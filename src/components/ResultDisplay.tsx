@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, VolumeX, Volume2, Camera, Share, Copy, Check, Info, BadgeIndianRupee, AlertTriangle } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { speak, stopSpeaking } from '@/utils/speechUtils';
 import { getCurrencySymbol, formatResultForSpeech } from '@/utils/recognitionUtils';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 const ResultDisplay: React.FC = () => {
   const { 
@@ -99,7 +100,7 @@ const ResultDisplay: React.FC = () => {
     },
     copied: {
       english: "Copied!",
-      hindi: "कॉपी क��या गया!",
+      hindi: "कॉपी किया गया!",
       tamil: "நகலெடுக்கப்பட்டது!",
       telugu: "కాపీ చేయబడింది!",
       bengali: "কপি করা হয়েছে!"
@@ -166,7 +167,7 @@ const ResultDisplay: React.FC = () => {
   const handleShare = async () => {
     if (!result || !isValidResult) return;
     
-    const shareText = `I identified a ${result.denomination} ${result.currency} using CurrencySight app.`;
+    const shareText = `I identified a ${result.denomination} ${result.currency} using CurrencySense app.`;
     
     if (navigator.share) {
       try {

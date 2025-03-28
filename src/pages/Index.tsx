@@ -1,101 +1,75 @@
 
-import React, { useState, useEffect } from 'react';
-import { Camera, Settings, Accessibility, Globe, Volume2, Vibrate, Cpu, BadgeCheck, DollarSign } from 'lucide-react';
-import { AppProvider, useAppContext } from '@/context/AppContext';
+import React from 'react';
+import { useAppContext } from '@/context/AppContext';
+import { Banknote, Camera, BadgeIndianRupee, Sparkles, Check } from 'lucide-react';
 import Header from '@/components/Header';
 import CameraView from '@/components/CameraView';
-import LoadingIndicator from '@/components/LoadingIndicator';
 import ResultDisplay from '@/components/ResultDisplay';
 import ErrorDisplay from '@/components/ErrorDisplay';
+import LoadingIndicator from '@/components/LoadingIndicator';
 import SettingsPanel from '@/components/SettingsPanel';
 import AccessibilitySettings from '@/components/AccessibilitySettings';
 import FinancialAssistant from '@/components/FinancialAssistant';
 
-// Add a new component for the animated hero section
-const AnimatedHero = ({ onScanClick, onSettingsClick, onAccessibilityClick }: { 
-  onScanClick: () => void, 
-  onSettingsClick: () => void,
-  onAccessibilityClick: () => void
-}) => {
-  const { language, isOnline } = useAppContext();
+const Index = () => {
+  const { status, startCamera, language } = useAppContext();
   
   const translations = {
-    welcomeTitle: {
-      english: "Currency Identification",
-      hindi: "मुद्रा पहचान",
-      tamil: "நாணய அடையாளம்",
-      telugu: "కరెన్సీ గుర్తింపు",
-      bengali: "মুদ্রা শনাক্তকরণ"
+    title: {
+      english: "Indian Currency Recognition",
+      hindi: "भारतीय मुद्रा पहचान",
+      tamil: "இந்திய நாணய அடையாளம்",
+      telugu: "భారతీయ కరెన్సీ గుర్తింపు",
+      bengali: "ভারতীয় মুদ্রা শনাক্তকরণ"
     },
-    welcomeMessage: {
-      english: "Empowering Financial Independence for the Visually Impaired",
-      hindi: "दृष्टिबाधित लोगों के लिए वित्तीय स्वतंत्रता को सशक्त बनाना",
-      tamil: "பார்வைக் குறைபாடுள்ளவர்களுக்கான நிதி சுதந்திரத்தை அதிகாரப்படுத்துதல்",
-      telugu: "దృష్టి లోపం ఉన్నవారికి ఆర్థిక స్వాతంత్ర్యాన్ని బలోపేతం చేయడం",
-      bengali: "দৃষ্টিহীনদের জন্য আর্থিক স্বাধীনতাকে শক্তিশালী করা"
+    subtitle: {
+      english: "Scan and identify Indian Rupee banknotes",
+      hindi: "भारतीय रुपये के नोट स्कैन करें और पहचानें",
+      tamil: "இந்திய ரூபாய் நோட்டுகளை ஸ்கேன் செய்து அடையாளம் காணவும்",
+      telugu: "భారతీయ రూపాయి నోట్లను స్కాన్ చేసి గుర్తించండి",
+      bengali: "ভারতীয় রুপি নোট স্ক্যান করুন এবং চিহ্নিত করুন"
     },
-    scanCurrency: {
-      english: "Scan Currency",
-      hindi: "मुद्रा स्कैन करें",
-      tamil: "நாணயத்தை ஸ்கேன் செய்யவும்",
-      telugu: "కరెన్సీని స్కాన్ చేయండి",
-      bengali: "মুদ্রা স্ক্যান করুন"
+    scanNow: {
+      english: "Scan Now",
+      hindi: "अभी स्कैन करें",
+      tamil: "இப்போது ஸ்கேன் செய்யவும்",
+      telugu: "ఇప్పుడు స్కాన్ చేయండి",
+      bengali: "এখনই স্ক্যান করুন"
     },
-    settings: {
-      english: "Settings",
-      hindi: "सेटिंग्स",
-      tamil: "அமைப்புகள்",
-      telugu: "సెట్టింగులు",
-      bengali: "সেটিংস"
+    features: {
+      english: "Features",
+      hindi: "विशेषताएँ",
+      tamil: "அம்சங்கள்",
+      telugu: "ఫీచర్లు",
+      bengali: "বৈশিষ্ট্য"
     },
-    accessibility: {
-      english: "Accessibility",
-      hindi: "सुलभता",
-      tamil: "அணுகல்தன்மை",
-      telugu: "ప్రాప్యత",
-      bengali: "অ্যাক্সেসযোগ্যতা"
+    instantRecognition: {
+      english: "Instant Recognition",
+      hindi: "त्वरित पहचान",
+      tamil: "உடனடி அங்கீகாரம்",
+      telugu: "తక్షణ గుర్తింపు",
+      bengali: "তাৎক্ষণিক শনাক্তকরণ"
     },
-    offlineMode: {
-      english: "Offline Mode",
-      hindi: "ऑफलाइन मोड",
-      tamil: "ஆஃப்லைன் முறை",
-      telugu: "ఆఫ్‌లైన్ మోడ్",
-      bengali: "অফলাইন মোড"
+    securePrivate: {
+      english: "Secure & Private",
+      hindi: "सुरक्षित और निजी",
+      tamil: "பாதுகாப்பான & தனிப்பட்ட",
+      telugu: "సురక్షితం & ప్రైవేట్",
+      bengali: "নিরাপদ এবং ব্যক্তিগত"
     },
-    accessibilityFeatures: {
-      english: "Accessibility Features",
-      hindi: "सुलभता सुविधाएँ",
-      tamil: "அணுகல் அம்சங்கள்",
-      telugu: "ప్రాప్యత ఫీచర్లు",
-      bengali: "অ্যাক্সেসিবিলিটি ফিচার"
+    supportedCurrencies: {
+      english: "Supported Currencies",
+      hindi: "समर्थित मुद्राएँ",
+      tamil: "ஆதரிக்கப்படும் நாணயங்கள்",
+      telugu: "మద్దతు ఉన్న కరెన్సీలు",
+      bengali: "সমর্থিত মুদ্রা"
     },
-    voiceFeedback: {
-      english: "Voice Feedback",
-      hindi: "आवाज़ फीडबैक",
-      tamil: "குரல் கருத்து",
-      telugu: "వాయిస్ ఫీడ్‌బ్యాక్",
-      bengali: "ভয়েস ফিডব্যাক"
-    },
-    vibrationAlerts: {
-      english: "Vibration Alerts",
-      hindi: "कंपन अलर्ट",
-      tamil: "அதிர்வு எச்சரிக்கைகள்",
-      telugu: "వైబ్రేషన్ అలర్ట్‌లు",
-      bengali: "কম্পন সতর্কতা"
-    },
-    aiPowered: {
-      english: "AI-Powered Recognition",
-      hindi: "AI संचालित पहचान",
-      tamil: "AI-இயக்கப்படும் அங்கீகாரம்",
-      telugu: "AI-పవర్డ్ గుర్తింపు",
-      bengali: "AI-পাওয়ারড রিকগনিশন"
-    },
-    highAccuracy: {
-      english: "High Accuracy",
-      hindi: "उच्च सटीकता",
-      tamil: "உயர் துல்லியம்",
-      telugu: "అధిక ఖచ్చితత్వం",
-      bengali: "উচ্চ নির্ভুলতা"
+    indianRupee: {
+      english: "Indian Rupee",
+      hindi: "भारतीय रुपया",
+      tamil: "இந்திய ரூபாய்",
+      telugu: "భారతీయ రూపాయి",
+      bengali: "ভারতীয় রুপি"
     }
   };
   
@@ -104,235 +78,99 @@ const AnimatedHero = ({ onScanClick, onSettingsClick, onAccessibilityClick }: {
   };
   
   return (
-    <div className="w-full max-w-3xl mx-auto py-8">
-      <div className="flex flex-col gap-8 items-center text-center">
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight animate-fade-in">
-            {getText('welcomeTitle')}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground animate-fade-in delay-100 max-w-2xl mx-auto">
-            {getText('welcomeMessage')}
-          </p>
-        </div>
-        
-        <div className="glass-card p-8 rounded-2xl w-full max-w-md flex flex-col gap-5 animate-fade-in delay-200">
-          <button
-            onClick={onScanClick}
-            className="primary-button flex items-center justify-center gap-2"
-            aria-label={getText('scanCurrency')}
-          >
-            <Camera className="h-6 w-6" />
-            {getText('scanCurrency')}
-          </button>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={onSettingsClick}
-              className="secondary-button py-3 flex items-center justify-center gap-2"
-              aria-label={getText('settings')}
-            >
-              <Settings className="h-5 w-5" />
-              {getText('settings')}
-            </button>
-            
-            <button
-              onClick={onAccessibilityClick}
-              className="secondary-button py-3 flex items-center justify-center gap-2"
-              aria-label={getText('accessibility')}
-            >
-              <Accessibility className="h-5 w-5" />
-              {getText('accessibility')}
-            </button>
-          </div>
-          
-          <button
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-colors
-              ${!isOnline 
-                ? 'bg-destructive/10 text-destructive border-destructive/20' 
-                : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted'
-              }`}
-            disabled={!isOnline}
-          >
-            <Globe className="h-5 w-5" />
-            {getText('offlineMode')}
-            <div className={`ml-2 h-2 w-2 rounded-full ${!isOnline ? 'bg-destructive animate-pulse' : 'bg-green-500'}`}></div>
-          </button>
-        </div>
-        
-        {/* Currency symbol background decoration */}
-        <div className="relative w-full h-40 overflow-hidden opacity-20 mt-8">
-          <div className="absolute -top-8 -left-8 text-6xl font-bold text-primary/30">$</div>
-          <div className="absolute top-2 left-1/4 text-7xl font-bold text-primary/20">€</div>
-          <div className="absolute top-10 right-1/4 text-8xl font-bold text-primary/25">£</div>
-          <div className="absolute -bottom-10 right-10 text-9xl font-bold text-primary/15">¥</div>
-          <div className="absolute bottom-4 left-1/3 text-6xl font-bold text-primary/20">₹</div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const HomeContent: React.FC = () => {
-  const { 
-    status, 
-    mode, 
-    startCamera, 
-    goToHome, 
-    goToSettings,
-    goToAccessibility
-  } = useAppContext();
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // Handle wearable mode special rendering
-  if (mounted && mode === 'wearable' && status === 'idle') {
-    return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 animate-fade-in">
-        <div 
-          className="glass-card bg-black/40 border-white/20 p-6 rounded-full mb-4 animate-pulse-subtle cursor-pointer hover:bg-black/50 transition-colors"
-          onClick={() => {
-            goToHome();
-          }}
-          role="button"
-          aria-label="Go to home page"
-        >
-          <span className="text-white text-2xl font-bold">CurrencySence</span>
-        </div>
-        
-        <button
-          onClick={startCamera}
-          className="wearable-button group relative overflow-hidden animate-scale-in"
-          aria-label="Scan Currency"
-        >
-          <span className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></span>
-          <div className="flex flex-col items-center">
-            <Camera className="h-10 w-10 mb-2" />
-            <span className="text-gradient">Scan Currency</span>
-          </div>
-        </button>
-        
-        <div className="mt-8 flex gap-4">
-          <button
-            onClick={goToSettings}
-            className="p-4 rounded-full bg-black/40 border border-white/20 text-white hover:bg-white/10 transition-colors duration-200 focus-visible-ring"
-            aria-label="Settings"
-          >
-            <Settings className="h-6 w-6" />
-          </button>
-          
-          <button
-            onClick={goToAccessibility}
-            className="p-4 rounded-full bg-black/40 border border-white/20 text-white hover:bg-white/10 transition-colors duration-200 focus-visible-ring"
-            aria-label="Accessibility"
-          >
-            <Accessibility className="h-6 w-6" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-  
-  if (status === 'camera') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center">
-          <CameraView />
-        </main>
-      </div>
-    );
-  }
-  
-  if (status === 'processing') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center">
-          <LoadingIndicator />
-        </main>
-      </div>
-    );
-  }
-  
-  if (status === 'result') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center py-8">
-          <ResultDisplay />
-        </main>
-      </div>
-    );
-  }
-  
-  if (status === 'error') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center">
-          <ErrorDisplay />
-        </main>
-      </div>
-    );
-  }
-  
-  if (status === 'settings') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center py-8">
-          <SettingsPanel />
-        </main>
-      </div>
-    );
-  }
-  
-  if (status === 'accessibility') {
-    return (
-      <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center py-8">
-          <AccessibilitySettings />
-        </main>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="min-h-screen flex flex-col p-4 md:p-6 gap-4">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 flex flex-col items-center justify-center py-4">
-        <AnimatedHero 
-          onScanClick={startCamera} 
-          onSettingsClick={goToSettings} 
-          onAccessibilityClick={goToAccessibility}
-        />
+      <main className="flex-1 container px-4 py-6 sm:px-6 md:py-8 animate-fade-in">
+        {status === 'idle' && (
+          <div className="flex flex-col items-center">
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold mb-2">{getText('title')}</h1>
+              <p className="text-muted-foreground">{getText('subtitle')}</p>
+            </div>
+            
+            <div className="w-full max-w-md mx-auto mb-8">
+              <div className="glass-card p-6 rounded-lg shadow-lg text-center">
+                <div className="mb-6 relative">
+                  <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <Banknote className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="absolute -right-2 -top-2 bg-primary text-primary-foreground p-1 rounded-full">
+                    <BadgeIndianRupee className="h-6 w-6" />
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={startCamera}
+                  className="primary-button w-full flex items-center justify-center gap-2 py-3 text-lg"
+                >
+                  <Camera className="h-5 w-5" />
+                  {getText('scanNow')}
+                </button>
+              </div>
+            </div>
+            
+            <div className="w-full max-w-2xl">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                {getText('features')}
+              </h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div className="glass-card p-4 rounded-lg flex items-start gap-3">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Camera className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{getText('instantRecognition')}</h3>
+                    <p className="text-sm text-muted-foreground">Identify banknotes in seconds</p>
+                  </div>
+                </div>
+                
+                <div className="glass-card p-4 rounded-lg flex items-start gap-3">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <BadgeIndianRupee className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{getText('securePrivate')}</h3>
+                    <p className="text-sm text-muted-foreground">No data is stored or shared</p>
+                  </div>
+                </div>
+              </div>
+              
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <BadgeIndianRupee className="h-5 w-5 text-primary" />
+                {getText('supportedCurrencies')}
+              </h2>
+              
+              <div className="glass-card p-4 rounded-lg mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <BadgeIndianRupee className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium">{getText('indianRupee')}</h3>
+                    <p className="text-sm text-muted-foreground">₹10, ₹20, ₹50, ₹100, ₹200, ₹500, ₹2000</p>
+                  </div>
+                  <div className="p-1 bg-green-100 dark:bg-green-900 rounded-full">
+                    <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {status === 'camera' && <CameraView />}
+        {status === 'processing' && <LoadingIndicator />}
+        {status === 'result' && <ResultDisplay />}
+        {status === 'error' && <ErrorDisplay />}
+        {status === 'settings' && <SettingsPanel />}
+        {status === 'accessibility' && <AccessibilitySettings />}
       </main>
       
-      {/* Financial Assistant */}
       <FinancialAssistant />
-      
-      {/* Floating action button for quick access */}
-      <button
-        onClick={startCamera}
-        className="floating-action-button"
-        aria-label="Scan Currency"
-      >
-        <Camera className="h-6 w-6" />
-      </button>
     </div>
-  );
-};
-
-const Index: React.FC = () => {
-  return (
-    <AppProvider>
-      <HomeContent />
-    </AppProvider>
   );
 };
 

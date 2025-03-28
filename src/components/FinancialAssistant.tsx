@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { BadgeIndianRupee, X, Send, MessageSquare, BarChart3, Newspaper } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/context/AppContext';
 
 const FinancialAssistant: React.FC = () => {
@@ -181,33 +180,27 @@ const FinancialAssistant: React.FC = () => {
           {/* Quick actions */}
           <div className="p-2 border-t border-border">
             <div className="flex gap-2 overflow-x-auto pb-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="whitespace-nowrap"
+              <button 
+                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-secondary flex items-center gap-1 text-sm"
                 onClick={handleGetNews}
               >
-                <Newspaper className="h-4 w-4 mr-2" />
+                <Newspaper className="h-3.5 w-3.5" />
                 {getText('getNews')}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="whitespace-nowrap"
+              </button>
+              <button 
+                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-secondary flex items-center gap-1 text-sm"
                 onClick={handleBudgetAdvisor}
               >
-                <BarChart3 className="h-4 w-4 mr-2" />
+                <BarChart3 className="h-3.5 w-3.5" />
                 {getText('budgetAdvisor')}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="whitespace-nowrap"
+              </button>
+              <button 
+                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-secondary flex items-center gap-1 text-sm"
                 onClick={handleFAQs}
               >
-                <MessageSquare className="h-4 w-4 mr-2" />
+                <MessageSquare className="h-3.5 w-3.5" />
                 {getText('faqs')}
-              </Button>
+              </button>
             </div>
           </div>
           
@@ -221,10 +214,13 @@ const FinancialAssistant: React.FC = () => {
                 placeholder={getText('typingPlaceholder')}
                 className="flex-1 px-4 py-2 bg-muted rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <Button type="submit" size="icon" className="rounded-full">
+              <button 
+                type="submit" 
+                className="p-2 rounded-full bg-primary text-primary-foreground"
+                aria-label={getText('send')}
+              >
                 <Send className="h-4 w-4" />
-                <span className="sr-only">{getText('send')}</span>
-              </Button>
+              </button>
             </div>
           </form>
         </div>

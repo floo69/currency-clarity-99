@@ -6,97 +6,70 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 221 83% 53%;
-    --primary-rgb: 37, 99, 235;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 5.9% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 221 83% 53%;
-    
-    --radius: 1rem;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 217 91% 60%;
-    --primary-rgb: 59, 130, 246;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142.1 70.0% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 217 91% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142.4 71.8% 29.2%;
   }
-  
+
+  /* High contrast theme for accessibility */
   .high-contrast {
-    --background: 240 10% 3.9%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 100%;
-    
-    --card: 240 10% 3.9%;
+    --card: 0 0% 0%;
     --card-foreground: 0 0% 100%;
-    
-    --popover: 240 10% 3.9%;
+    --popover: 0 0% 0%;
     --popover-foreground: 0 0% 100%;
-    
-    --primary: 60 100% 50%; /* Bright yellow for high visibility */
-    --primary-rgb: 255, 225, 0;
-    --primary-foreground: 240 10% 3.9%;
-    
-    --secondary: 0 0% 20%;
+    --primary: 142.1 100% 50.0%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 90%;
-    
-    --accent: 60 100% 50%;
-    --accent-foreground: 240 10% 3.9%;
-    
+    --muted-foreground: 0 0% 80%;
+    --accent: 142.1 100% 50.0%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 40%;
-    --input: 0 0% 20%;
-    --ring: 60 100% 50%;
+    --border: 0 0% 50%;
+    --input: 0 0% 100%;
+    --ring: 142.1 100% 50.0%;
   }
 }
 
@@ -104,208 +77,53 @@
   * {
     @apply border-border;
   }
-  
-  html {
-    @apply scroll-smooth antialiased;
-  }
-  
   body {
-    @apply bg-background text-foreground min-h-screen transition-colors duration-300;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-  }
-  
-  /* Improve focus visibility for accessibility */
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary ring-2 ring-primary ring-offset-2;
-  }
-  
-  /* Improve touch target sizes for accessibility */
-  button, a, input, select, textarea {
-    @apply min-h-11 min-w-11;
-  }
-  
-  /* High contrast mode enhancements */
-  .high-contrast button, 
-  .high-contrast a, 
-  .high-contrast input, 
-  .high-contrast select {
-    @apply border-2 border-white/80;
-  }
-  
-  .high-contrast .glass-card {
-    @apply border-2 border-white/90;
-  }
-  
-  .high-contrast h1, 
-  .high-contrast h2, 
-  .high-contrast h3, 
-  .high-contrast strong, 
-  .high-contrast label {
-    @apply text-white;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-background/80 backdrop-blur-md border border-border rounded-lg shadow-lg transition-all duration-300;
-  }
-  
+@layer utilities {
   .focus-visible-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
-  }
-  
-  .accessibility-button {
-    @apply px-6 py-4 text-lg sm:text-xl font-medium rounded-full shadow-md 
-           transition-all duration-300 ease-out
-           focus-visible-ring
-           disabled:opacity-70 disabled:cursor-not-allowed
-           active:scale-[0.98];
-  }
-  
-  .primary-button {
-    @apply accessibility-button bg-primary text-primary-foreground 
-           hover:bg-primary/90 active:bg-primary/95;
-  }
-  
-  .secondary-button {
-    @apply accessibility-button bg-secondary text-secondary-foreground
-           hover:bg-secondary/90 active:bg-secondary/95;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
   
   .icon-button {
-    @apply p-3 rounded-full transition-all duration-300
-           focus-visible-ring hover:bg-muted;
+    @apply p-2 rounded-full hover:bg-muted transition-colors focus-visible-ring;
   }
   
-  .wearable-button {
-    @apply p-6 rounded-full text-2xl font-bold bg-primary text-primary-foreground
-           shadow-lg transition-all duration-200
-           focus-visible-ring
-           active:scale-[0.97];
+  .primary-button {
+    @apply px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors focus-visible-ring;
   }
   
-  /* New wearable mode specific styles */
-  .text-gradient {
-    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
+  .secondary-button {
+    @apply px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors focus-visible-ring;
   }
   
-  .neo-blur {
-    @apply backdrop-blur-2xl bg-black/40 border border-white/10;
-  }
-  
-  .wearable-card {
-    @apply bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
-  }
-  
-  .wearable-icon-button {
-    @apply p-4 rounded-full bg-black/40 border border-white/20 text-white 
-           hover:bg-white/10 transition-colors duration-200
-           focus-visible-ring;
-  }
-  
-  /* New animation classes */
-  .floating-action-button {
-    @apply fixed bottom-6 right-6 p-4 rounded-full bg-primary text-primary-foreground
-           shadow-lg hover:shadow-xl transition-all duration-300
-           focus-visible-ring animate-float z-20;
-  }
-  
-  .currency-scan-highlight {
-    @apply absolute inset-0 border-2 border-primary animate-pulse rounded-lg;
-  }
-  
-  .notification-badge {
-    @apply absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive
-           text-xs flex items-center justify-center text-destructive-foreground;
-  }
-  
-  .shimmer-effect {
-    @apply relative overflow-hidden bg-muted/50 before:absolute before:inset-0 
-           before:translate-x-[-100%] before:animate-[pan_2s_infinite] 
-           before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
-  }
-  
-  .keyboard-key {
-    @apply px-2 py-1 bg-secondary text-secondary-foreground rounded border border-border
-           shadow-sm min-h-0 min-w-0 text-sm inline-flex items-center justify-center;
-  }
-  
-  /* Large action button for accessibility */
-  .large-action-button {
-    @apply w-full max-w-xs py-6 px-8 rounded-2xl text-2xl font-bold
-           shadow-lg transition-all duration-300 ease-out
-           focus-visible-ring
-           disabled:opacity-70 disabled:cursor-not-allowed
-           active:scale-[0.98];
-  }
-  
-  /* New styles for financial assistant */
-  .financial-assistant-button {
-    @apply fixed bottom-20 right-6 p-4 rounded-full bg-primary text-primary-foreground
-           shadow-lg hover:shadow-xl transition-all duration-300
-           focus-visible-ring animate-pulse;
-  }
-  
-  /* Animation for currency symbol background */
-  @keyframes float-slow {
-    0%, 100% { transform: translateY(0) rotate(0); }
-    50% { transform: translateY(-10px) rotate(5deg); }
-  }
-  
-  .animate-float-slow {
-    animation: float-slow 8s ease-in-out infinite;
-  }
-  
-  /* Enhance button accessibility */
-  .button-accessible {
-    @apply py-4 px-6 text-lg rounded-lg font-medium transition-all
-           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
-           active:scale-95 disabled:opacity-60 disabled:pointer-events-none;
-  }
-  
-  /* High contrast specific components */
-  .high-contrast .primary-button {
-    @apply border-2 border-white text-black font-bold;
-  }
-  
-  .high-contrast .secondary-button {
-    @apply border-2 border-white bg-black text-white font-bold;
-  }
-  
-  .high-contrast .floating-action-button {
-    @apply border-2 border-white;
+  .glass-card {
+    @apply bg-background/80 backdrop-blur-sm border border-border;
   }
 }
 
-/* Additional animation keyframes */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
+/* Animations */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes slide-in-right {
@@ -313,35 +131,36 @@
   to { transform: translateX(0); }
 }
 
-.animate-scale-in {
-  animation: scale-in 0.3s ease-out forwards;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
 }
 
 .animate-slide-down {
-  animation: slide-down 0.3s ease-out forwards;
+  animation: slide-down 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
 }
 
 .animate-slide-in-right {
   animation: slide-in-right 0.3s ease-out forwards;
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s infinite;
-}
-
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 2s ease-in-out infinite;
 }
 
-.animate-bounce-subtle {
-  animation: bounce-subtle 3s ease-in-out infinite;
-}
-
-/* Delay utilities */
 .delay-100 {
   animation-delay: 100ms;
 }
@@ -352,12 +171,4 @@
 
 .delay-300 {
   animation-delay: 300ms;
-}
-
-.delay-500 {
-  animation-delay: 500ms;
-}
-
-.delay-700 {
-  animation-delay: 700ms;
 }

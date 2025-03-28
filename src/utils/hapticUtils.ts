@@ -1,62 +1,71 @@
 
-type VibrationPattern = number | number[];
+// Haptic feedback utility for enhanced tactile feedback
 
-export const triggerHapticFeedback = (pattern: VibrationPattern = 100): boolean => {
-  if (!window.navigator || !window.navigator.vibrate) {
-    return false;
+/**
+ * Available haptic patterns for feedback
+ */
+export enum HapticPatterns {
+  SHORT = 'short',
+  LONG = 'long',
+  SUCCESS = 'success',
+  ERROR = 'error',
+  WARNING = 'warning'
+}
+
+/**
+ * Triggers haptic feedback if supported by the device
+ * @param pattern Pattern or vibration duration in milliseconds
+ */
+export const triggerHapticFeedback = (pattern: HapticPatterns | number[] | number): void => {
+  // Check if vibration API is supported
+  if (!('vibrate' in navigator)) {
+    console.warn('Vibration API not supported in this browser');
+    return;
   }
   
-  try {
-    // Vibrate with the given pattern
-    window.navigator.vibrate(pattern);
-    return true;
-  } catch (error) {
-    console.error('Haptic feedback error:', error);
-    return false;
-  }
-};
-
-export const isHapticFeedbackSupported = (): boolean => {
-  return !!window.navigator && !!window.navigator.vibrate;
-};
-
-// Predefined vibration patterns for different scenarios
-export const HapticPatterns = {
-  // Short vibration for regular feedback (100ms)
-  LIGHT: 100,
+  // Determine the pattern to use
+  let vibrationPattern: number | number[];
   
-  // Medium vibration for notifications (300ms)
-  MEDIUM: 300,
-  
-  // Strong vibration for alerts (500ms)
-  HEAVY: 500,
-  
-  // Double pulse for success (100ms on, 50ms off, 100ms on)
-  SUCCESS: [100, 50, 100],
-  
-  // Triple pulse for warning (100ms on, 50ms off, 100ms on, 50ms off, 100ms on)
-  WARNING: [100, 50, 100, 50, 100],
-  
-  // SOS pattern for error (3 short, 3 long, 3 short)
-  ERROR: [100, 30, 100, 30, 100, 30, 300, 30, 300, 30, 300, 30, 100, 30, 100, 30, 100],
-  
-  // Subtle pulse sequence for selection
-  SELECT: [50, 30, 50],
-  
-  // Long gentle pulse for recognition complete
-  RECOGNITION_COMPLETE: [30, 50, 30, 50, 30, 50, 200]
-};
-
-// Function to trigger haptic feedback for currency recognition
-export const triggerRecognitionHaptic = (confidence: number): boolean => {
-  if (confidence > 0.9) {
-    // High confidence recognition
-    return triggerHapticFeedback(HapticPatterns.SUCCESS);
-  } else if (confidence > 0.7) {
-    // Medium confidence recognition
-    return triggerHapticFeedback(HapticPatterns.MEDIUM);
+  if (Array.isArray(pattern)) {
+    vibrationPattern = pattern;
+  } else if (typeof pattern === 'number') {
+    vibrationPattern = pattern;
   } else {
-    // Low confidence recognition
-    return triggerHapticFeedback(HapticPatterns.WARNING);
+    // Predefined patterns
+    switch (pattern) {
+      case HapticPatterns.SHORT:
+        vibrationPattern = 50;
+        break;
+      case HapticPatterns.LONG:
+        vibrationPattern = 150;
+        break;
+      case HapticPatterns.SUCCESS:
+        vibrationPattern = [50, 50, 150];
+        break;
+      case HapticPatterns.ERROR:
+        vibrationPattern = [100, 30, 100, 30, 100];
+        break;
+      case HapticPatterns.WARNING:
+        vibrationPattern = [100, 50, 100];
+        break;
+      default:
+        vibrationPattern = 50;
+    }
+  }
+  
+  // Trigger vibration
+  try {
+    navigator.vibrate(vibrationPattern);
+  } catch (error) {
+    console.error('Error triggering haptic feedback:', error);
+  }
+};
+
+/**
+ * Stops any ongoing haptic feedback
+ */
+export const stopHapticFeedback = (): void => {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(0);
   }
 };

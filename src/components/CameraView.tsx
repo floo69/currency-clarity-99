@@ -1,33 +1,28 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, X, CameraOff, RefreshCw, Focus, ZoomIn, ZoomOut, FlipHorizontal } from 'lucide-react';
+import { Camera, X, CameraOff, RefreshCw, ZoomIn, ZoomOut, WifiOff } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 
 // Extended interface for MediaTrackCapabilities that includes missing properties
 interface ExtendedMediaTrackCapabilities extends MediaTrackCapabilities {
   torch?: boolean;
   zoom?: number;
-  focusDistance?: {min: number, max: number};
-  focusMode?: string[];
 }
 
 // Extended interface for MediaTrackConstraintSet that includes missing properties
 interface ExtendedMediaTrackConstraintSet extends MediaTrackConstraintSet {
   torch?: boolean;
   zoom?: number;
-  focusMode?: string;
-  pointsOfInterest?: {x: number, y: number}[];
 }
 
 const CameraView: React.FC = () => {
-  const { processCapturedImage, setStatus, isOnline, language, refreshOnlineStatus, goToHome, isDarkMode } = useAppContext();
+  const { processCapturedImage, setStatus, isOnline, language, refreshOnlineStatus, goToHome } = useAppContext();
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState<boolean>(false);
   const [hasFlash, setHasFlash] = useState<boolean>(false);
   const [flashOn, setFlashOn] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [isFocusing, setIsFocusing] = useState<boolean>(false);
   const [showGuideBox, setShowGuideBox] = useState<boolean>(true);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -273,50 +268,9 @@ const CameraView: React.FC = () => {
     setZoomLevel(prev => Math.max(prev - 0.5, 1));
   };
   
-  const handleTapToFocus = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !stream) return;
-    
-    const videoTrack = stream.getVideoTracks()[0];
-    if (!videoTrack) return;
-    
-    // Check if focus is supported
-    const capabilities = videoTrack.getCapabilities() as ExtendedMediaTrackCapabilities;
-    if (!capabilities.focusDistance && !capabilities.focusMode) return;
-    
-    const videoElement = videoRef.current;
-    const videoRect = videoElement.getBoundingClientRect();
-    
-    // Calculate relative position
-    const x = (e.clientX - videoRect.left) / videoRect.width;
-    const y = (e.clientY - videoRect.top) / videoRect.height;
-    
-    try {
-      // Apply focus constraint if supported
-      if (capabilities.focusMode?.includes('single-shot')) {
-        const constraints: MediaTrackConstraints = {
-          advanced: [{
-            focusMode: 'single-shot',
-            pointsOfInterest: [{ x, y }]
-          } as ExtendedMediaTrackConstraintSet]
-        };
-        
-        videoTrack.applyConstraints(constraints);
-        
-        // Show focusing animation
-        setIsFocusing(true);
-        setTimeout(() => setIsFocusing(false), 1000);
-      }
-    } catch (error) {
-      console.error('Focus error:', error);
-    }
-  };
-  
   return (
     <div className="flex flex-col items-center w-full animate-fade-in">
-      <div 
-        className="relative w-full max-w-2xl aspect-[4/3] rounded-lg overflow-hidden glass-card shadow-lg"
-        onClick={handleTapToFocus}
-      >
+      <div className="relative w-full max-w-2xl aspect-[4/3] rounded-lg overflow-hidden glass-card shadow-lg">
         {cameraError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center gap-4">
             <CameraOff className="w-16 h-16 text-destructive mb-4 animate-pulse" />
@@ -337,13 +291,6 @@ const CameraView: React.FC = () => {
               playsInline
               className="w-full h-full object-cover"
             />
-            
-            {/* Focusing animation */}
-            {isFocusing && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-20 h-20 border-2 border-primary rounded-full scale-90 animate-[scale-in_0.5s_ease-out]"></div>
-              </div>
-            )}
             
             {/* Guide box for positioning */}
             {showGuideBox && (

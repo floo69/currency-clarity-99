@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Settings, Languages, Home, HelpCircle, Menu, X, WifiOff } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import { Button } from '@/components/ui/button';
 import ModeToggle from './ModeToggle';
 import LanguageSelector from './LanguageSelector';
 
@@ -82,7 +81,7 @@ const Header: React.FC = () => {
             <span className="absolute -left-1 -top-1 w-8 h-8 bg-primary/20 rounded-full scale-75 group-hover:scale-100 transition-transform duration-300"></span>
             <span className="relative">Currency</span>
           </span>
-          <span className="text-primary">Sence</span>
+          <span className="text-primary">Sense</span>
         </button>
       </div>
       
@@ -171,7 +170,7 @@ const Header: React.FC = () => {
                 className="focus-visible-ring text-xl font-bold"
                 aria-label="Go to home"
               >
-                <span className="text-primary">CurrencySence</span>
+                <span className="text-primary">CurrencySense</span>
               </button>
               
               <button

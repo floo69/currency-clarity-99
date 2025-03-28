@@ -11,7 +11,8 @@ const SettingsPanel: React.FC = () => {
     mode, 
     setMode, 
     language, 
-    setLanguage 
+    setLanguage,
+    goToAccessibility
   } = useAppContext();
   
   const translations = {
@@ -96,6 +97,13 @@ const SettingsPanel: React.FC = () => {
       tamil: "ஒலியை நிறுத்து",
       telugu: "ఆడియోని ఆపండి",
       bengali: "অডিও বন্ধ করুন"
+    },
+    accessibilitySettings: {
+      english: "Accessibility Settings",
+      hindi: "पहुंच सेटिंग्स",
+      tamil: "அணுகல் அமைப்புகள்",
+      telugu: "ప్రాప్యత సెట్టింగులు",
+      bengali: "অ্যাক্সেসিবিলিটি সেটিংস"
     }
   };
   
@@ -211,10 +219,10 @@ const SettingsPanel: React.FC = () => {
             </select>
           </div>
           
-          {/* Audio */}
+          {/* Audio & Accessibility */}
           <div>
             <h3 className="text-lg font-medium mb-3">{getText('audio')}</h3>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-4">
               <button
                 onClick={handleTestAudio}
                 className="flex-1 p-4 rounded-lg bg-secondary flex items-center justify-center gap-2 focus-visible-ring"
@@ -231,6 +239,14 @@ const SettingsPanel: React.FC = () => {
                 <VolumeX className="h-5 w-5" />
               </button>
             </div>
+            
+            <button
+              onClick={goToAccessibility}
+              className="w-full p-4 rounded-lg bg-primary text-primary-foreground flex items-center justify-center gap-2 focus-visible-ring"
+            >
+              <Glasses className="h-5 w-5" />
+              <span>{getText('accessibilitySettings')}</span>
+            </button>
           </div>
         </div>
       </div>
